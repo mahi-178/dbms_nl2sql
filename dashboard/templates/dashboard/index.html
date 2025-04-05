@@ -1,0 +1,72 @@
+{% extends 'dashboard/base.html' %}
+
+{% load static %}
+
+
+{% block title %}SmartSQL Insight - Home{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h1 class="display-4 mb-4">SmartSQL Insight</h1>
+            <p class="lead mb-4">
+                Ask questions in natural language and get SQL-powered insights from your database.
+            </p>
+            
+            <div class="row g-4 py-4">
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="bi bi-chat-dots text-primary" style="font-size: 2rem;"></i>
+                            <h5 class="card-title mt-3">Natural Language Queries</h5>
+                            <p class="card-text">
+                                Ask questions in plain English and get database insights instantly.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="bi bi-database-check text-primary" style="font-size: 2rem;"></i>
+                            <h5 class="card-title mt-3">Smart SQL Generation</h5>
+                            <p class="card-text">
+                                Powered by advanced LLM technology to create accurate SQL queries.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="bi bi-file-earmark-bar-graph text-primary" style="font-size: 2rem;"></i>
+                            <h5 class="card-title mt-3">Data Visualization</h5>
+                            <p class="card-text">
+                                Get your results in easy-to-understand tables and charts.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                {% if user.is_authenticated %}
+                <a href="{% url 'dashboard:query' %}" class="btn btn-primary btn-lg">
+                    Start Querying
+                </a>
+                {% else %}
+                <a href="{% url 'dashboard:register' %}" class="btn btn-primary btn-lg me-2">
+                    Register
+                </a>
+                <a href="{% url 'dashboard:login' %}" class="btn btn-outline-primary btn-lg">
+                    Login
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
