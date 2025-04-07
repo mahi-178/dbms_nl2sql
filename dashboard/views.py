@@ -5,6 +5,7 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 import json
+import logging
 
 from .models import Query, QueryFeedback
 from .forms import RegistrationForm, QueryForm, QueryFeedbackForm
@@ -60,6 +61,9 @@ def query_view(request):
     
     return render(request, 'dashboard/query.html', context)
 
+
+logger = logging.getLogger(__name__)
+
 @login_required
 @require_POST
 def process_query(request):
@@ -90,13 +94,23 @@ def process_query(request):
                 result_json=result
             )
             
-            return JsonResponse({
-                'success': True,
-                'query_id': query.id,
-                'sql': sql_query,
-                'result': result
+            # Log the generated SQL and result
+            logger.info(f"Generated SQL: {sql_query}")
+            logger.info(f"Query Result: {result}")
+            
+            # return JsonResponse({
+            #     'success': True,
+            #     'query_id': query.id,
+            #     'sql': sql_query,
+            #     'result': result
+            # })
+            return render(request, 'dashboard/query.html', {
+                'form': form, 
+                'schema_info': schema_info,
+                'sql_query': sql_query,
             })
         except Exception as e:
+            logger.error(f"Error processing query: {str(e)}")
             return JsonResponse({
                 'success': False,
                 'error': str(e)

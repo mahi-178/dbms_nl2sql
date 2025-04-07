@@ -34,6 +34,7 @@ Convert this natural language question to a valid SQL query:
 Question: {question}
 
 Return only the SQL query without any explanation or additional text.
+if the question is not relavent to database schema then give only the text "NOT RELEVENT TO DATA BASE"
 """
     
     def _query_huggingface(self, prompt):
