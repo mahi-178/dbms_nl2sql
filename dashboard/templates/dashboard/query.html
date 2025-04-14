@@ -1,4 +1,5 @@
 {% extends 'dashboard/base.html' %}
+{% load custom_filters %}
 
 {% block title %}Query - SmartSQL Insight{% endblock %}
 
@@ -94,6 +95,13 @@
 
     #queryResults table {
         width: 100%;
+        border-collapse: collapse;
+    }
+
+    #queryResults table th, #queryResults table td {
+        padding: 12px;
+        text-align: left;
+        border: 1px solid #dee2e6;
     }
 
     .btn-group .btn {
@@ -179,57 +187,87 @@
                 </div>
             {% endif %}
 
-                <!-- Results -->
-                {% if results %}
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">Query Results</h5>
-                        <button id="exportCSV" class="btn btn-sm btn-outline-secondary">
-                            <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
-                        </button>
-                    </div>
-                    <div class="card-body result-table">
-                        <div id="queryResults">
-                            {{ results|safe }}
-                        </div>
-                    </div>
+            <!-- Results -->
+            {% if result %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Query Results</h5>
+                    <button id="exportCSV" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
+                    </button>
                 </div>
-                {% endif %}
-
-                <!-- Feedback -->
-                <div class="card shadow-sm mb-4 feedback-section">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Feedback</h5>
-                    </div>
-                    <div class="card-body">
-                        <form id="feedbackForm" method="post" action="#">
-                            {% csrf_token %}
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" type="checkbox" id="isHelpful" name="is_helpful">
-                                <label class="form-check-label" for="isHelpful">Was this query helpful?</label>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Rate this query:</label>
-                                <div class="btn-group" role="group">
-                                    {% for i in "12345" %}
-                                    <input type="radio" class="btn-check" name="rating" id="rating{{i}}" value="{{i}}" autocomplete="off">
-                                    <label class="btn btn-outline-secondary" for="rating{{i}}">{{i}}</label>
+                <div class="card-body result-table">
+                    <div id="queryResults">
+                        <table>
+                            <thead>
+                                <tr>
+                                    {% for column in result.columns %}
+                                    <th>{{ column }}</th>
                                     {% endfor %}
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="comments" class="form-label">Comments:</label>
-                                <textarea class="form-control" id="comments" name="comments" rows="2" placeholder="Any suggestions or feedback?"></textarea>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary">Submit Feedback</button>
-                        </form>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in result.data %}
+                                <tr>
+                                    {% for column in result.columns %}
+                                    <td>{{ row|get_item:column }}</td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            {% if sql_query %}</div>{% endif %}
-        </div>
+            </div>
+            {% endif %}
+
+ <!-- Feedback -->
+ <!-- Feedback Section -->
+{% if pq == 1 %}
+<div class="card shadow-sm mb-4 feedback-section">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Feedback</h5>
+    </div>
+    <div class="card-body">
+        <form id="feedbackForm" method="post" action="#">
+            {% csrf_token %}
+
+            <!-- Helpful Checkbox -->
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="helpFull" name="help_full">
+                <label class="form-check-label" for="helpFull">Was this query helpful?</label>
+            </div>
+
+            <!-- NLP Input (hidden) -->
+            <input type="hidden" name="nlp_given" value="{{ form.natural_language }}">
+
+            <!-- SQL Query (hidden) -->
+            <input type="hidden" name="query_sql" value="{{ form.sql_query }}">
+
+            <!-- Rating -->
+            <div class="mb-3">
+                <label class="form-label">Rate this query:</label>
+                <div class="btn-group" role="group">
+                    {% for i in "12345" %}
+                        <input type="radio" class="btn-check" name="rating" id="rating{{ i }}" value="{{ i }}" autocomplete="off">
+                        <label class="btn btn-outline-secondary" for="rating{{ i }}">{{ i }}</label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Comments -->
+            <div class="mb-3">
+                <label for="comments" class="form-label">Comments:</label>
+                <textarea class="form-control" id="comments" name="comments" rows="2" placeholder="Any suggestions or feedback?"></textarea>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn-primary">Submit Feedback</button>
+        </form>
     </div>
 </div>
+{% endif %}
+
+ 
 {% endblock %}
+    

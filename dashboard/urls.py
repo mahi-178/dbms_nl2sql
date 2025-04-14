@@ -15,7 +15,7 @@ urlpatterns = [
     # path('query-page/', views.query_page, name='query-page'),
     path('process-query/', views.process_query, name='process_query'),
     path('history/', views.history_view, name='history'),
-    path('feedback/<int:query_id>/', views.save_feedback, name='save_feedback'),
+    path('feedback/', views.save_feedback, name='save_feedback'),
     path('export-csv/<int:query_id/', views.export_csv, name='export_csv'),
     path('rerun-query//', views.rerun_query, name='rerun_query'),
 ]

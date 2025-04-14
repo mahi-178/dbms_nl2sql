@@ -8,9 +8,10 @@ class QueryAdmin(admin.ModelAdmin):
     search_fields = ('natural_language', 'sql_query')
     readonly_fields = ('created_at',)
 
+
 @admin.register(QueryFeedback)
 class QueryFeedbackAdmin(admin.ModelAdmin):
-    list_display = ('id', 'query', 'rating', 'is_helpful', 'created_at')
-    list_filter = ('rating', 'is_helpful', 'created_at')
+    list_display = ('id', 'query_user', 'rating', 'help_full', 'created_at')
+    list_filter = ('rating', 'help_full', 'created_at')
     search_fields = ('comments',)
     readonly_fields = ('created_at',)

@@ -85,13 +85,12 @@ def process_query(request):
             
             # Execute SQL query
             result = db_service.execute_query(sql_query)
-            
             # Save query to history
             query = Query.objects.create(
                 user=request.user,
                 natural_language=natural_language,
                 sql_query=sql_query,
-                result_json=result
+                result = result 
             )
             
             # Log the generated SQL and result
@@ -104,10 +103,14 @@ def process_query(request):
             #     'sql': sql_query,
             #     'result': result
             # })
+            pq =1
             return render(request, 'dashboard/query.html', {
                 'form': form, 
                 'schema_info': schema_info,
                 'sql_query': sql_query,
+                'result' : result ,
+                'pq' : pq,
+                'natural_language' : 'natural_language'
             })
         except Exception as e:
             logger.error(f"Error processing query: {str(e)}")
@@ -140,30 +143,26 @@ def history_view(request):
     queries = Query.objects.filter(user=request.user)
     return render(request, 'dashboard/history.html', {'queries': queries})
 
+
 @login_required
 @require_POST
-def save_feedback(request, query_id):
-    """Save feedback for a query"""
-    query = get_object_or_404(Query, id=query_id, user=request.user)
+def save_feedback(request):
+    """Save feedback for a query and redirect to the query view"""
     form = QueryFeedbackForm(request.POST)
     
     if form.is_valid():
-        rating = form.cleaned_data['rating']
-        is_helpful = form.cleaned_data['is_helpful']
-        comments = form.cleaned_data['comments']
-        
-        feedback, created = QueryFeedback.objects.update_or_create(
-            query=query,
-            defaults={
-                'rating': rating,
-                'is_helpful': is_helpful,
-                'comments': comments
-            }
+        feedback_data = form.cleaned_data
+        QueryFeedback.objects.create(
+            query_user=request.user,  # assuming user is attached to the feedback
+            help_full=feedback_data.get('help_full', False),
+            nlp_given=feedback_data['nlp_given'],
+            query_sql=feedback_data['query_sql'],
+            rating=feedback_data['rating'],
+            comments=feedback_data.get('comments', '')
         )
-        
-        return JsonResponse({'success': True})
     
-    return JsonResponse({'success': False, 'errors': form.errors})
+    # After saving the feedback, redirect to the query view
+    return redirect('query')
 
 @login_required
 def export_csv(request, query_id):

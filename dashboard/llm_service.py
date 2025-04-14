@@ -23,19 +23,20 @@ class LLMService:
             return self._query_huggingface(prompt)
     
     def _create_prompt(self, question, schema_info):
-        """
-        Create a prompt for the LLM with the question and schema information
-        """
         return f"""
-Given the following PostgreSQL database schema:
-{schema_info}
-
-Convert this natural language question to a valid SQL query:
+Given the PostgreSQL schema:
+CREATE TABLE students (student_id SERIAL PRIMARY KEY, name TEXT NOT NULL, gender TEXT CHECK (gender IN ('MALE', 'FEMALE')), branch TEXT CHECK (branch IN ('CSE', 'ECE', 'IT', 'ME')), cgpa NUMERIC(3,2) CHECK (cgpa BETWEEN 6.00 AND 10.00), passing_year INTEGER CHECK (passing_year BETWEEN 2000 AND 2050));
+CREATE TABLE offers (offer_id SERIAL PRIMARY KEY, student_id INTEGER REFERENCES students(student_id), company_id INTEGER REFERENCES companies(company_id), package_lpa INTEGER, offer_day INTEGER CHECK (offer_day BETWEEN 1 AND 31), offer_month INTEGER CHECK (offer_month BETWEEN 1 AND 12), offer_year INTEGER CHECK (offer_year BETWEEN 2000 AND 2050));
+CREATE TABLE skills (skill_id SERIAL PRIMARY KEY, name TEXT CHECK (name IN ('Python', 'Java', 'Machine Learning', 'Data Structures', 'SQL', 'Web Development', 'C++', 'Deep Learning')));
+CREATE TABLE studentskills (student_id INTEGER, skill_id INTEGER, PRIMARY KEY (student_id, skill_id), FOREIGN KEY (student_id) REFERENCES students(student_id), FOREIGN KEY (skill_id) REFERENCES skills(skill_id));
+CREATE TYPE industry_enum AS ENUM ('ML', 'Software', 'Consulting', 'IT Services');
+CREATE TYPE offer_type_enum AS ENUM ('Full_time', 'Internship');
+CREATE TABLE companies (company_id SERIAL PRIMARY KEY, name TEXT, industry industry_enum, visit_day INTEGER CHECK (visit_day BETWEEN 1 AND 31), visit_month INTEGER CHECK (visit_month BETWEEN 1 AND 12), visit_year INTEGER CHECK (visit_year BETWEEN 2000 AND 2050), offer_type offer_type_enum);
+Convert this question to a valid SQL query:
 Question: {question}
-
-Return only the SQL query without any explanation or additional text.
-if the question is not relavent to database schema then give only the text "NOT RELEVENT TO DATA BASE"
+Return only the SQL query or if the questin is not relavent to the dataset or even not a perfect question then give  NOT RELEVENT QUESTION.
 """
+
     
     def _query_huggingface(self, prompt):
         """
