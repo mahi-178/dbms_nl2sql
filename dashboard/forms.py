@@ -36,7 +36,8 @@ class QueryForm(forms.Form):
 
 class QueryFeedbackForm(forms.Form):
     RATING_CHOICES = [(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')]
-    
-    is_helpful = forms.BooleanField(required=False)
+    help_full = forms.BooleanField(required=False)
     rating = forms.ChoiceField(choices=RATING_CHOICES, required=True)
     comments = forms.CharField(widget=forms.Textarea, required=False)
+    query_sql = forms.CharField(widget=forms.Textarea, required=False)
+    nlp_given = forms.CharField(widget=forms.Textarea, required=False)

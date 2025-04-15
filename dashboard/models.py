@@ -15,16 +15,17 @@ class Query(models.Model):
     def __str__(self):
         return f"{self.natural_language[:50]}"
 
+
 class QueryFeedback(models.Model):
     RATING_CHOICES = [(i, str(i)) for i in range(1, 6)]
 
-    help_full = models.BooleanField(default=False)  # Yes or No
-    nlp_given = models.TextField()                 # Stores the NLP query text
-    query_sql = models.TextField()                 # Stores the SQL query
-    query_user = models.ForeignKey(User, on_delete=models.CASCADE)  # User who made the query
-    rating = models.IntegerField(choices=RATING_CHOICES)            # Rating from 1 to 5
-    comments = models.TextField(blank=True, null=True)              # Optional text comments
-    created_at = models.DateTimeField(auto_now_add=True)            # Timestamp
+    help_full = models.BooleanField(default=False)                        # Default: False
+    nlp_given = models.TextField(default="")                             # Default: empty string
+    query_sql = models.TextField(default="")                             # Default: empty string
+    query_user = models.ForeignKey(User, on_delete=models.CASCADE)       # Must be provided explicitly
+    rating = models.IntegerField(choices=RATING_CHOICES, default=3)      # Default: 3 (midpoint)
+    comments = models.TextField(blank=True, null=True, default="")       # Default: empty string
+    created_at = models.DateTimeField(auto_now_add=True)                 # Auto-set at creation
 
     def __str__(self):
         return f"Feedback from {self.query_user.username} | Rating: {self.rating}"

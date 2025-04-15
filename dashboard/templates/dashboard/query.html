@@ -229,7 +229,7 @@
         <h5 class="card-title mb-0">Feedback</h5>
     </div>
     <div class="card-body">
-        <form id="feedbackForm" method="post" action="#">
+        <form id="feedbackForm" method="post" action="{% url 'dashboard:save_feedback' %}">
             {% csrf_token %}
 
             <!-- Helpful Checkbox -->
@@ -239,10 +239,10 @@
             </div>
 
             <!-- NLP Input (hidden) -->
-            <input type="hidden" name="nlp_given" value="{{ form.natural_language }}">
+            <input type="hidden" name="nlp_given" value="{{ natural_language }}">
 
             <!-- SQL Query (hidden) -->
-            <input type="hidden" name="query_sql" value="{{ form.sql_query }}">
+            <input type="hidden" name="query_sql" value="{{ sql_query }}">
 
             <!-- Rating -->
             <div class="mb-3">

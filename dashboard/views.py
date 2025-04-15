@@ -144,25 +144,43 @@ def history_view(request):
     return render(request, 'dashboard/history.html', {'queries': queries})
 
 
+from django.shortcuts import redirect
+
 @login_required
-@require_POST
 def save_feedback(request):
-    """Save feedback for a query and redirect to the query view"""
-    form = QueryFeedbackForm(request.POST)
-    
-    if form.is_valid():
-        feedback_data = form.cleaned_data
-        QueryFeedback.objects.create(
-            query_user=request.user,  # assuming user is attached to the feedback
-            help_full=feedback_data.get('help_full', False),
-            nlp_given=feedback_data['nlp_given'],
-            query_sql=feedback_data['query_sql'],
-            rating=feedback_data['rating'],
-            comments=feedback_data.get('comments', '')
-        )
-    
-    # After saving the feedback, redirect to the query view
-    return redirect('query')
+    """Handle query form display and feedback saving"""
+    db_service = DatabaseService()
+    schema_info, _ = db_service.get_schema_info()
+
+    if request.method == 'POST':
+        form = QueryFeedbackForm(request.POST)
+        if form.is_valid():
+            feedback_data = form.cleaned_data
+            nlp_given = feedback_data.get('nlp_given', '').strip()
+            if nlp_given == '{natural_language }':
+                nlp_given = ''
+
+            QueryFeedback.objects.create(
+                query_user=request.user,
+                help_full=feedback_data.get('help_full', False),
+                nlp_given=nlp_given,
+                query_sql=feedback_data['query_sql'],
+                rating=feedback_data['rating'],
+                comments=feedback_data.get('comments', '')
+            )
+            return redirect('/dashboard/query/')  # 🔁 Redirect here
+
+    else:
+        form = QueryFeedbackForm()
+
+    return render(request, 'dashboard/query.html', {
+        'form': form,
+        'schema_info': schema_info
+    })
+
+
+
+
 
 @login_required
 def export_csv(request, query_id):
